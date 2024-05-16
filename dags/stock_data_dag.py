@@ -11,12 +11,12 @@ import fnmatch
 import yfinance as yf
 from google.cloud import storage
 
-PROJECT_ID="amara-sandbox-1"
-STAGING_DATASET = "stock_dataset"
+PROJECT_ID="composer-project-422612"
+STAGING_DATASET = "source_dataset"
 LOCATION = "us-central1"
 
 default_args = {
-    'owner': 'Amara',
+    'owner': 'Developer',
     'depends_on_past': False,
     'email_on_failure': False,
     'email_on_retry': False,
@@ -31,7 +31,7 @@ def get_data():
 
     # Set start and end dates
     today = dt.datetime.now()
-    start = dt.datetime(2023, 2, 1,)
+    start = dt.datetime(2024,5,16)
     end = dt.date(today.year, today.month, today.day)
 
     # API call to download data from yahoo finance
