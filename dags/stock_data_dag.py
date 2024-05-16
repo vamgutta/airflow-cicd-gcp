@@ -82,7 +82,6 @@ with DAG('Stock_data',
     pull_stock_data_to_gcs = PythonOperator(
         task_id = 'pull_stock_data_to_gcs',
         python_callable = get_data,
-
         )
 
     load_to_bq = GCSToBigQueryOperator(
