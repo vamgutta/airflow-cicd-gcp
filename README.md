@@ -2,11 +2,6 @@
 
 This code looks into a way to implement CI/CD in Cloud Composer using Cloud Build and GitHub.
 
-The blog for this code is published on [Medium](https://medium.com/@amarachi.ogu/implementing-ci-cd-in-cloud-composer-using-cloud-build-and-github-part-2-a721e4ed53da) 
-
-Workflow Architecture Diagram   
-![Workflow Architecture Diagram](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*hIIbqvmZqgrcgDcp3jv4Iw.png)
-
 ## File Layout
 
 ```
@@ -48,14 +43,6 @@ The utility contains a script
 - requirements.txt - contains the packages required by the add_dags_to_composer.py.  
 
 
-## Create Composer environment
-```
-gcloud composer environments create dev-environment \
- --location us-central1 \
- --image-version composer-1.20.5-airflow-2.3.4 \
- --service-account "example-account@example-project.iam.gserviceaccount.com"
-```
-
 ## Automated Workflow
 
 1. Make a change to a DAG and push that change to a development branch in your repository
@@ -65,4 +52,3 @@ gcloud composer environments create dev-environment \
 5. Cloud Build syncs your development Cloud Composer environment with these new changes 
 6. You verify that the DAG behaves as expected in your development environment
 
-The blog for this code is published on [Medium](https://medium.com/@amarachi.ogu/implementing-ci-cd-in-cloud-composer-using-cloud-build-and-github-part-2-a721e4ed53da)  
