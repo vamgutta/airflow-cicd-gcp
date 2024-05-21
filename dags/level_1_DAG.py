@@ -45,7 +45,7 @@ args = {
 
 # define the dag
 with DAG(
-    "dag_level_1",
+    "LEVEL_1_DAG",
     schedule_interval = "30 5 * * *",
     default_args = args
 ) as dag:

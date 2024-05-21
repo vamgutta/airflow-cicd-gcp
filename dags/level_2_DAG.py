@@ -28,7 +28,7 @@ args = {
 
 # define the DAG
 with DAG(
-    "LEVEL_2_DAGg",
+    "LEVEL_2_DAG",
     schedule_interval = '30 7 * * *',
     default_args = args
 ) as dag:
