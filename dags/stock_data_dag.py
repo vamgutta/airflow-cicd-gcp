@@ -11,7 +11,7 @@ import fnmatch
 import yfinance as yf
 from google.cloud import storage
 
-PROJECT_ID="composer-project-422612"
+PROJECT_ID="bold-streamer-423605-s6"
 STAGING_DATASET = "source_dataset"
 LOCATION = "us-central1"
 
@@ -31,7 +31,7 @@ def get_data():
 
     # Set start and end dates
     today = dt.datetime.now()
-    start = dt.datetime(2024,5,16)
+    start = dt.datetime(2024,5,21)
     end = dt.date(today.year, today.month, today.day)
 
     # API call to download data from yahoo finance
