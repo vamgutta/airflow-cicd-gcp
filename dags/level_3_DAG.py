@@ -6,7 +6,7 @@ from airflow.contrib.operators.dataflow_operator import DataFlowPythonOperator
 
 # variables
 PROJECT_ID = "bold-streamer-423605-s6"
-REGION = "us-east1"
+REGION = "us-central1"
 GCS_PYTHON_SCRIPT = "gs://source-bkt-data/beam_job-1.py"
 args = {
     "owner" : "developer",
