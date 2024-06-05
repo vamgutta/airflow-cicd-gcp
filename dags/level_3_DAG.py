@@ -13,7 +13,7 @@ ARGS = {
     "owner" : "shaik saidhul",
     "start_date" : datetime(2024,6,5),
     "retries" : 2,
-    "retry_delay" : timedelta(minutes=2),
+    "retry_delay" : timedelta(minutes=3),
     "dataflow_default_options" : {
         "project" : PROJECT_ID,
         "region" : REGION,
