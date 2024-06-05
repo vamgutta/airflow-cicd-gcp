@@ -44,7 +44,7 @@ ARGS = {
 with DAG(
     "level_2_dag",
     schedule_interval = "0 15 * * *",
-    deafult_args = ARGS
+    default_args = ARGS
 ) as dag:
     
 # define the Tasks
