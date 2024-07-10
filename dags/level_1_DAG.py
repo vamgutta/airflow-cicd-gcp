@@ -11,9 +11,9 @@ PROJECT_ID = "sigma-rarity-423909-a7"
 BUCKET = "bucket_2_789788945"
 DATASET_NAME_1 = "raw_dataset"
 DATASET_NAME_2 = "insight_dataset"
-TABLE_NAME_1 = "empTable"
-TABLE_NAME_2 = "depTable"
-TABLE_NAME_3 = "empDepTable"
+TABLE_NAME_1 = "empTable2"
+TABLE_NAME_2 = "depTable2"
+TABLE_NAME_3 = "empDepTable2"
 LOCATION = "US"
 INSERT_ROWS_QUERY = f"""
 CREATE TABLE `{PROJECT_ID}.{DATASET_NAME_2}.{TABLE_NAME_3}` 
@@ -36,7 +36,7 @@ ON
 """
 ARGS = {
     "owner" : "developer",
-    "start_date" : datetime(2024,7,8),
+    "start_date" : datetime(2024,7,10),
     "retries" : 2,
     "retry_delay" : timedelta(minutes=2)
 }
@@ -45,7 +45,7 @@ ARGS = {
 
 # define the dag
 with DAG(
-    "level_1_dag",
+    "level1dag",
     schedule_interval = "30 5 * * *",
     default_args = ARGS
 ) as dag:
