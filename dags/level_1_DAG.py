@@ -1,59 +1,55 @@
-# import all modules
+# import the modules
 import airflow
 from airflow import DAG
 from datetime import datetime, timedelta
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 
-
-# varibale section
-PROJECT_ID = "sigma-rarity-423909-a7"
-BUCKET = "bucket_2_789788945"
-DATASET_NAME_1 = "raw_dataset"
-DATASET_NAME_2 = "insight_dataset"
-TABLE_NAME_1 = "empTable2"
-TABLE_NAME_2 = "depTable2"
-TABLE_NAME_3 = "empDepTable2"
+# variable section
+PROJECT_ID = "western-glazing-431109-b3"
 LOCATION = "US"
-INSERT_ROWS_QUERY = f"""
-CREATE TABLE `{PROJECT_ID}.{DATASET_NAME_2}.{TABLE_NAME_3}` 
-AS
-SELECT DISTINCT
-	e.EmployeeID,
-	CONCAT(e.FirstName," ",e.LastName) as FullName,
-	e.Email,
-	e.Salary,
-	e.JoinDate,
-	CAST(e.salary as integer)*0.01 as TaxComputed,
-	d.DepartmentID,
-	d.DepartmentName	
-FROM
-	`{PROJECT_ID}.{DATASET_NAME_1}.{TABLE_NAME_1}` e
-LEFT JOIN
-	`{PROJECT_ID}.{DATASET_NAME_1}.{TABLE_NAME_2}` d
-ON
-	e.DepartmentID=d.DepartmentID
-"""
+SOURCE_BUCKET = "source-bucket-airflow-dags"
+DATASET_NAME_1 = "raw_ds"
+DATASET_NAME_2 = "insight_ds"
+TABLE_NAME_1 = "emp_raw"
+TABLE_NAME_2 = "dep_raw"
+TABLE_NAME_3 = "empDep_in"
 ARGS = {
-    "owner" : "developer",
-    "start_date" : datetime(2024,7,10),
+    "owner" : "shaik saidhul",
+    "start_date" : datetime(2024,8,14),
     "retries" : 2,
     "retry_delay" : timedelta(minutes=2)
 }
-
-
+INSERT_ROWS_QUERY = f"""
+CREATE TABLE `{PROJECT_ID}.{DATASET_NAME_2}.{TABLE_NAME_3}` AS
+SELECT 
+  e.EmployeeID,
+  CONCAT(e.FirstName," ",e.LastName) AS FullName,
+  e.Email,
+  e.Salary,
+  e.JoinDate,
+  d.DepartmentID,
+  d.DepartmentName,
+  cast(e.Salary as integer)*0.01 as Tax
+FROM 
+    `{PROJECT_ID}.{DATASET_NAME_1}.{TABLE_NAME_1}` e
+INNER JOIN
+    `{PROJECT_ID}.{DATASET_NAME_1}.{TABLE_NAME_2}` d
+ON 
+    e.DepartmentID = d.DepartmentID
+"""
 
 # define the dag
-with DAG(
-    "level1dag",
+with DAG (
+    "level_1_dag_bq",
     schedule_interval = "30 5 * * *",
     default_args = ARGS
 ) as dag:
     
 # define the tasks
     task_1 = GCSToBigQueryOperator(
-        task_id="empTask",
-        bucket=BUCKET,
+        task_id="emp_task",
+        bucket=SOURCE_BUCKET,
         source_objects=["employee.csv"],
         destination_project_dataset_table=f"{DATASET_NAME_1}.{TABLE_NAME_1}",
         schema_fields=[
@@ -69,8 +65,8 @@ with DAG(
     )
 
     task_2 = GCSToBigQueryOperator(
-        task_id="depTask",
-        bucket=BUCKET,
+        task_id="dept_task",
+        bucket=SOURCE_BUCKET,
         source_objects=["departments.csv"],
         destination_project_dataset_table=f"{DATASET_NAME_1}.{TABLE_NAME_2}",
         schema_fields=[
@@ -81,7 +77,7 @@ with DAG(
     )
 
     task_3 = BigQueryInsertJobOperator(
-        task_id="empDepTask",
+        task_id="empDep_task",
         configuration={
             "query": {
                 "query": INSERT_ROWS_QUERY,
