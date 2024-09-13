@@ -88,4 +88,4 @@ if __name__ == "__main__":
 
     upload_dags_to_composer(args.dags_directory, args.dags_bucket)
 
-    upload_dags_to_composer(args.data_directory, args.dags_bucket, "data/")
+    upload_dags_to_composer(args.data_directory, args.dags_bucket, "source_code/")
