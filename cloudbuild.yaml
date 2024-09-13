@@ -19,12 +19,7 @@ steps:
   # run
   - name: python
     entrypoint: python
-    args: ["utils/add_dags_to_composer.py", "--dags_directory=${_DAGS_DIRECTORY}", "--dags_bucket=${_DAGS_BUCKET}"]
-
-  # run
-  - name: python
-    entrypoint: python
-    args: ["utils/add_dags_to_composer.py", "--data_directory=${_DATA_DIRECTORY}", "--dags_bucket=${_DAGS_BUCKET}"]
+    args: ["utils/add_dags_to_composer.py", "--dags_directory=${_DAGS_DIRECTORY}", "--dags_bucket=${_DAGS_BUCKET}", "--data_directory=${_DATA_DIRECTORY}"]
 
 options:
   logging: CLOUD_LOGGING_ONLY
