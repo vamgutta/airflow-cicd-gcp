@@ -79,6 +79,13 @@ if __name__ == "__main__":
         help="Name of the DAGs bucket of your Composer environment without the gs:// prefix",
     )
 
+    parser.add_argument(
+        "--data_directory",
+        help="Name of the DAGs bucket of your Composer environment without the gs:// prefix",
+    )
+
     args = parser.parse_args()
 
     upload_dags_to_composer(args.dags_directory, args.dags_bucket)
+
+    upload_dags_to_composer(args.data_directory, args.dags_bucket, "data/")
