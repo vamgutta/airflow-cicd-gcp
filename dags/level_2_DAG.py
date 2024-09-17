@@ -1,4 +1,4 @@
-# import all modules
+# import all modules, libraries
 import airflow
 from airflow import DAG
 from datetime import datetime, timedelta
@@ -9,77 +9,84 @@ from airflow.providers.google.cloud.operators.dataproc import (
 )
 
 # variable section
-PROJECT_ID = "bold-streamer-423605-s6"
+PROJECT_ID = "western-glazing-431109-b3"
 REGION = "us-east1"
-CLUSTER_NAME = "dev-cluster"
-JOB_FILE_URI = "gs://source-bkt-data/job_dataproc.py"
-PYSPARK_JOB = {
-    "reference": {"project_id": PROJECT_ID},
-    "placement": {"cluster_name": CLUSTER_NAME},
-    "pyspark_job": {"main_python_file_uri": JOB_FILE_URI},
-}
+CLUSTER_NAME = "airflow-prod"
+DAGS_BUCKET = "us-central1-composer-demo-29692111-bucket"
+GCS_FILE_URI_1 = f"gs://{DAGS_BUCKET}/data/job-1.py"
+GCS_FILE_URI_2 = f"gs://{DAGS_BUCKET}/data/job-2.py"
+
 CLUSTER_CONFIG = {
     "master_config": {
         "num_instances": 1,
-        "machine_type_uri": "n1-standard-4",
-        "disk_config": {"boot_disk_type": "pd-standard", "boot_disk_size_gb": 32},
+        "machine_type_uri": "e2-standard-2",
+        "disk_config": {"boot_disk_type": "pd-balanced", "boot_disk_size_gb": 50},
     },
     "worker_config": {
         "num_instances": 2,
-        "machine_type_uri": "n1-standard-4",
-        "disk_config": {"boot_disk_type": "pd-standard", "boot_disk_size_gb": 32},
-    },
-    "secondary_worker_config": {
-        "num_instances": 1,
-        "machine_type_uri": "n1-standard-4",
-        "disk_config": {
-            "boot_disk_type": "pd-standard",
-            "boot_disk_size_gb": 32,
-        },
-        "is_preemptible": True,
-        "preemptibility": "PREEMPTIBLE",
+        "machine_type_uri": "e2-standard-2",
+        "disk_config": {"boot_disk_type": "pd-balanced", "boot_disk_size_gb": 50},
     },
 }
-
+PYSPARK_JOB_1 = {
+    "reference": {"project_id": PROJECT_ID},
+    "placement": {"cluster_name": CLUSTER_NAME},
+    "pyspark_job": {"main_python_file_uri": GCS_FILE_URI_1},
+}
+PYSPARK_JOB_2 = {
+    "reference": {"project_id": PROJECT_ID},
+    "placement": {"cluster_name": CLUSTER_NAME},
+    "pyspark_job": {"main_python_file_uri": GCS_FILE_URI_2},
+}
 
 ARGS = {
     "owner" : "shaik saidhul",
-    "start_date" : datetime(2024,6,5),
+    "start_date" : datetime(2024,9,17),
     "retries" : 2,
     "retry_delay" : timedelta(minutes=2)
 }
 
-
 # define the dag
 with DAG(
     "level_2_dag",
-    schedule_interval = "0 15 * * *",
+    schedule_interval = "30 5 * * *",
     default_args = ARGS
-) as dag:
+) as dag :
     
 # define the Tasks
 
-    create_cluster = DataprocCreateClusterOperator(
+    # create dataproc cluster 
+    task_1 = DataprocCreateClusterOperator(
         task_id="create_cluster",
         project_id=PROJECT_ID,
         cluster_config=CLUSTER_CONFIG,
         region=REGION,
-        cluster_name=CLUSTER_NAME,
+        cluster_name=CLUSTER_NAME
     )
 
-    pyspark_task = DataprocSubmitJobOperator(
-        task_id="pyspark_task", 
-        job=PYSPARK_JOB, 
+    # job-1 submission
+    task_2 = DataprocSubmitJobOperator(
+        task_id="pyspark_task_1", 
+        job=PYSPARK_JOB_1, 
         region=REGION, 
         project_id=PROJECT_ID
     )
 
-    delete_cluster = DataprocDeleteClusterOperator(
+    # job-2 submission
+    task_3 = DataprocSubmitJobOperator(
+        task_id="pyspark_task_2", 
+        job=PYSPARK_JOB_2, 
+        region=REGION, 
+        project_id=PROJECT_ID
+    )
+
+    # delete the cluster
+    task_4 = DataprocDeleteClusterOperator(
         task_id="delete_cluster",
         project_id=PROJECT_ID,
         cluster_name=CLUSTER_NAME,
         region=REGION,
     )
-    
-# define the dependencies
-create_cluster >> pyspark_task >> delete_cluster
+
+# define dependency
+task_1 >> task_2 >> task_3 >> task_4

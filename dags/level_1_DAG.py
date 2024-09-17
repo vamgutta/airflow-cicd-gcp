@@ -16,7 +16,7 @@ TABLE_NAME_2 = "dep_raw"
 TABLE_NAME_3 = "empDep_in"
 ARGS = {
     "owner" : "shaik saidhul",
-    "start_date" : datetime(2024,9,12),
+    "start_date" : datetime(2024,9,17),
     "retries" : 2,
     "retry_delay" : timedelta(minutes=2)
 }
