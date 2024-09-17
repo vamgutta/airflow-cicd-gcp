@@ -50,7 +50,7 @@ with DAG (
     task_1 = GCSToBigQueryOperator(
         task_id="emp_task",
         bucket=SOURCE_BUCKET,
-        source_objects=["emp.csv"],
+        source_objects=["employee.csv"],
         destination_project_dataset_table=f"{DATASET_NAME_1}.{TABLE_NAME_1}",
         schema_fields=[
             {"name": "EmployeeID", "type": "STRING", "mode": "NULLABLE"},
