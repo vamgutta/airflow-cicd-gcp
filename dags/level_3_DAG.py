@@ -1,48 +1,55 @@
-# import all modules, libraries
+# Import required modules
 import airflow
 from airflow import DAG
-from datetime import datetime, timedelta
-from airflow.contrib.operators.dataflow_operator import DataFlowPythonOperator
+from airflow.utils.dates import days_ago
+from airflow.providers.google.cloud.operators.dataflow import DataflowCreatePythonJobOperator
+from datetime import timedelta
+import logging
 
-
-# variable section
-PROJECT_ID = "western-glazing-431109-b3"
-DAGS_BUCKET = "us-central1-composer-demo-29692111-bucket"
-GCS_PYTHON_SCRIPT_1 = f"gs://{DAGS_BUCKET}/data/beam-job-1.py" 
-GCS_PYTHON_SCRIPT_2 = f"gs://{DAGS_BUCKET}/data/beam-job-2.py" 
-GCS_OUTPUT = f"gs://{DAGS_BUCKET}/data/temp/"
+# varibale section
+PROJECT_ID = "model-arcadia-440702-q1"
 REGION = "us-central1"
-ARGS = {
-    "owner" : "shaik saidhul",
-    "start_date" : datetime(2024,9,17),
-    "retries" : 2,
-    "retry_delay" : timedelta(minutes=2),
-    "dataflow_default_options" : {
-        "project" : PROJECT_ID,
-        "region" : REGION,
-        "runner" : "DataflowRunner"
-    }
+GCS_BUCKET = "test-bkt-123123123"
+BEAM_PY_FILE = "gs://test-bkt-123123123/beam_jobb.py"
+DATAFLOW_DEFAULT_OPTIONS = {
+    "project": PROJECT_ID,
+    "region": REGION,
+    "tempLocation": f"gs://{GCS_BUCKET}/temp",
+    "stagingLocation": f"gs://{GCS_BUCKET}/staging",
+    "runner": "DataflowRunner",
 }
 
-# define the dag
+ARGS = {
+    "owner" : "shaik saidhul",
+    "depends_on_past" : False,
+    "start_date" : days_ago(1),
+    "retries" : 2,
+    "retry_delay" : timedelta(minutes=1),
+    "email_on_failure": True,
+    "email_on_retry": True,
+    "email": ["saidhuljohny@gmail.com"],
+    "execution_timeout": timedelta(minutes=30),
+    "catchup": False,
+}
+
+# Define the DAG
 with DAG(
-    "level_3_dag",
-    schedule_interval = "30 17 * * *",
-    default_args = ARGS
-) as dag :
+    dag_id="LEVEL_5_DAG",
+    default_args=ARGS,
+    schedule_interval="0 6 * * *",  # Runs daily at 6 AM
+    description="DAG to run an Apache Beam job on Dataflow",
+    catchup=False,
+    max_active_runs=1,
+    tags=["dataflow", "beam", "etl", "data_engineering"],
+) as dag:
     
-# define the tasks
-
-    task_1 = DataFlowPythonOperator(
-        task_id = "beam-job-1",
-        py_file = GCS_PYTHON_SCRIPT_1
+    # Task: Submit the Beam job to Dataflow
+    submit_beam_job = DataflowCreatePythonJobOperator(
+        task_id="run_beam_job",
+        py_file=BEAM_PY_FILE,
+        job_name="my-beam-job",
+        options=DATAFLOW_DEFAULT_OPTIONS,
+        location=REGION,
+        gcp_conn_id="google_cloud_default",  
+        poll_sleep=10,  # Polling interval to check job status
     )
-
-    task_2 = DataFlowPythonOperator(
-        task_id = "beam-job-2",
-        py_file = GCS_PYTHON_SCRIPT_2
-    )
-
-
-# define the dependency
-(task_1,task_2)
