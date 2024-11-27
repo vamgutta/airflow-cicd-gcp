@@ -10,6 +10,7 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobO
 PROJECT_ID = "model-arcadia-440702-q1"
 LOCATION = "US"
 BUCKET = "random-bucket-1720"
+OBJECT_NAME = ["departments.csv"]
 DATASET_NAME_1 = "raw_ds"
 DATASET_NAME_2 = "insight_ds"
 TABLE_NAME_1 = "emp_raw"
@@ -77,7 +78,7 @@ with DAG(
     load_department_data = GCSToBigQueryOperator(
         task_id="load_department_data",
         bucket=BUCKET,
-        source_objects=["departments.csv"],
+        source_objects=OBJECT_NAME,
         destination_project_dataset_table=f"{DATASET_NAME_1}.{TABLE_NAME_2}",
         schema_fields=[
             {"name": "DepartmentID", "type": "INT64", "mode": "NULLABLE"},
