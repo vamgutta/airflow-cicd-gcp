@@ -10,8 +10,8 @@ from airflow.providers.google.cloud.operators.dataproc import (
 )
 
 # varibale section
-PROJECT_ID = "model-arcadia-440702-q1"
-REGION = "us-east1"
+PROJECT_ID = "caramel-aria-471603-r0"
+REGION = "australia-southeast1"
 CLUSTER_NAME = "dev-cluster"
 
 CLUSTER_CONFIG = {
@@ -35,14 +35,14 @@ PYSPARK_JOB = {
 }
 
 ARGS = {
-    "owner" : "shaik saidhul",
+    "owner" : "vamsi krishna",
     "depends_on_past" : False,
     "start_date" : days_ago(1),
     "retries" : 2,
     "retry_delay" : timedelta(minutes=1),
     "email_on_failure": True,
     "email_on_retry": True,
-    "email": ["saidhuljohny@gmail.com"],
+    "email": ["vamsi201988@gmail.com"],
     "execution_timeout": timedelta(minutes=30),
     "catchup": False,
 }
