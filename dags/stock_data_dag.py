@@ -11,7 +11,7 @@ import fnmatch
 import yfinance as yf
 from google.cloud import storage
 
-PROJECT_ID="bold-streamer-423605-s6"
+PROJECT_ID="caramel-aria-471603-r0"
 STAGING_DATASET = "source_dataset"
 LOCATION = "us-central1"
 
