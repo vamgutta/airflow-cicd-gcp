@@ -51,7 +51,7 @@ def load_json_to_postgres():
     print(f"Loaded {len(data)} records from GCS into {TABLE_NAME}")
 
 with DAG(
-    dag_id='Testing_by_Vamsi',
+    dag_id='GitHub_Testing_by_Vamsi_and_Sai',
     start_date=datetime(2025, 10, 29),
     schedule_interval=None,  
     catchup=False,
@@ -64,3 +64,4 @@ with DAG(
     )
 
     load_task
+
