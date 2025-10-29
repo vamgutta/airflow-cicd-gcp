@@ -7,9 +7,9 @@ from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQue
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 
 # variable section
-PROJECT_ID = "model-arcadia-440702-q1"
-LOCATION = "US"
-BUCKET = "random-bucket-1720"
+PROJECT_ID = "caramel-aria-471603-r0"
+LOCATION = "australia-southeast1"
+BUCKET = " australia-southeast1-core-d-61ee7347-bucket"
 OBJECT_NAME = ["departments.csv"]
 DATASET_NAME_1 = "raw_ds"
 DATASET_NAME_2 = "insight_ds"
@@ -36,14 +36,14 @@ WHERE e.EmployeeID is not null
 """
 
 ARGS = {
-    "owner" : "shaik saidhul",
+    "owner" : "Vamsi Krishna Gutta",
     "depends_on_past" : False,
     "start_date" : days_ago(1),
     "retries" : 2,
     "retry_delay" : timedelta(minutes=1),
     "email_on_failure": True,
     "email_on_retry": True,
-    "email": ["saidhuljohny@gmail.com"],
+    "email": ["vamsi201988@gmail.com"],
     "execution_timeout" : timedelta(minutes=15)
 }
 
