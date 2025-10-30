@@ -6,7 +6,7 @@ from datetime import datetime
 import json
 
 JSON_FILE_PATH = 'data/cars.json'
-GCS_BUCKET = 'australia-southeast1-core-d-61ee7347-bucket'
+GCS_BUCKET = 'australia-southeast1-core-d-9c7b10ab-bucket'
 POSTGRES_CONN_ID = 'pg_conn'
 GCS_CONN_ID = 'google_cloud_default'
 TABLE_NAME = 'my_cars'
