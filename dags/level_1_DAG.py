@@ -36,7 +36,7 @@ WHERE e.EmployeeID is not null
 """
 
 ARGS = {
-    "owner" : "Vamsi Krishna Gutta",
+    "owner" : "Vamsi Krishna",
     "depends_on_past" : False,
     "start_date" : days_ago(1),
     "retries" : 2,
