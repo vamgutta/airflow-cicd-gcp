@@ -14,7 +14,7 @@ default_args = {
     'retries': 2,
     'retry_delay': timedelta(minutes=5),
     'email_on_failure': True,           # optional - notify if DAG fails
-    'email': ['ashutoshsb164@gmail.com']  # replace with your team email
+    'email': ['ashutoshsb164@gmail.com']
 }
 
 # Constants
@@ -25,8 +25,12 @@ POSTGRES_CONN_ID = 'pg_conn'
 TABLE_NAME = 'customers_data'
 SCHEMA_NAME = 'adae_dataset'
 
-
 def test_postgres_connection():
+    """
+    Test the connectivity to the Postgres database.
+    Uses the PostgresHook to establish a connection and run a simple query (`SELECT 1;`) 
+    to verify that the connection works. Prints the result.
+    """
     pg_hook = PostgresHook(postgres_conn_id=POSTGRES_CONN_ID)
     conn = pg_hook.get_conn()
     with conn.cursor() as cur:
@@ -34,8 +38,14 @@ def test_postgres_connection():
         print(f"Postgres connection test result: {cur.fetchone()}")
     conn.close()
 
-
 def extract_from_s3(**context):
+    """
+    Extracts a CSV file from an S3 bucket and returns it as a JSON string via XCom.
+    Parameters:
+        **context: Airflow context dictionary (provided automatically)
+    Returns:
+        str: JSON representation of the extracted CSV data.
+    """
     s3 = S3Hook(aws_conn_id=S3_CONN_ID)
     file_content = s3.read_key(key=S3_KEY, bucket_name=S3_BUCKET)
     df = pd.read_csv(io.StringIO(file_content))
@@ -44,6 +54,16 @@ def extract_from_s3(**context):
 
 
 def transform_data(**context):
+    """
+    Transforms the extracted data:
+        - Combines 'First Name' and 'Last Name' into 'Full Name'
+        - Drops 'Phone 2' if it exists
+        - Converts 'Subscription Date' to proper datetime objects
+    Parameters:
+        **context: Airflow context dictionary
+    Returns:
+        str: Transformed data in JSON format (records oriented).
+    """
     df_json = context['ti'].xcom_pull(task_ids='extract_from_s3')
     df = pd.read_json(io.StringIO(df_json))
 
@@ -56,11 +76,14 @@ def transform_data(**context):
 
     if 'Subscription Date' in df.columns:
         if pd.api.types.is_numeric_dtype(df['Subscription Date']):
-            df['Subscription Date'] = pd.to_datetime(df['Subscription Date'], unit='s', errors='coerce')
+            df['Subscription Date'] = pd.to_datetime(
+                df['Subscription Date'], unit='s', errors='coerce')
         else:
-            df['Subscription Date'] = pd.to_datetime(df['Subscription Date'], errors='coerce')
+            df['Subscription Date'] = pd.to_datetime(
+                df['Subscription Date'], errors='coerce')
 
-    df['Subscription Date'] = df['Subscription Date'].apply(lambda x: x.to_pydatetime() if pd.notnull(x) else None)
+    df['Subscription Date'] = df['Subscription Date'].apply(
+        lambda x: x.to_pydatetime() if pd.notnull(x) else None)
 
     print(f"Transformation complete. Columns now: {list(df.columns)}")
     print(df.head())
@@ -68,6 +91,16 @@ def transform_data(**context):
 
 
 def load_to_postgres(**context):
+    """
+    Loads transformed data into the Postgres database.
+    - Creates schema if it does not exist
+    - Creates table if it does not exist
+    - Performs UPSERT (insert or update on conflict)
+    Parameters:
+        **context: Airflow context dictionary
+    Returns:
+        dict: Metadata about the loaded data (file name, schema, table, record count).
+    """
     df_json = context['ti'].xcom_pull(task_ids='transform_data')
     df = pd.read_json(io.StringIO(df_json), orient='records')
 
@@ -114,13 +147,11 @@ def load_to_postgres(**context):
             row['City'], row['Country'], row['Phone 1'],
             row['Email'], row['Subscription Date'], row['Website']
         ))
-
     conn.commit()
     cursor.close()
     conn.close()
 
     print(f"Loaded {len(df)} rows into {SCHEMA_NAME}.{TABLE_NAME}.")
-    
     # Return metadata to XCom for email task
     return {
         "file_name": S3_KEY,
@@ -195,7 +226,7 @@ with DAG(
     # NEW TASK: Send email
     send_email = EmailOperator(
         task_id='send_success_email',
-        to='ashutoshsb164@gmail.com',  # change to team distro if needed
+        to='ashutoshsb164@gmail.com',
         subject='Airflow DAG Success: Data Loaded into PostgreSQL',
         html_content="{{ ti.xcom_pull(task_ids='compose_email_body') }}",
     )
